@@ -7,11 +7,17 @@
 </head>
 <body>
     <script>
-        const url = 'https://abnormally-patient-bluejay.ngrok-free.app/stores/getAllJsonData/1';
-        fetch(url)
-      .then((response) => response.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err));
+        fetch('https://abnormally-patient-bluejay.ngrok-free.app/stores/getAllJsonData/1', {
+            method: 'GET', // or 'POST' if applicable
+            headers: {
+                'Content-Type': 'application/json',
+                // Add any other headers if necessary
+            },
+        })
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+
     </script>
 
     <div class="container mx-auto" id="container">
