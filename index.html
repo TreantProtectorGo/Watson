@@ -1,29 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Map</title>
-    <script src="jquery-3.7.1.min.js"></script>
+<meta charset="utf-8">
+<title>Demo of CORS Anywhere</title>
+<meta name="viewport" content="width=device-width">
+<style>
+html, body {
+  margin: 0;
+  height: 100%;
+  padding: 3px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+* {
+  -moz-box-sizing: border-box;
+       box-sizing: border-box;
+}
+label { display: block; }
+input {
+  display: block;
+  width: 100%;
+  padding: 8px 5px;
+  border: 1px solid #CCC;
+}
+textarea {
+  width: 100%;
+  height: 100%;
+}
+#top {
+  height: 180px;
+  position: relative;
+
+}
+#bottom {
+  height: 100%;
+  margin-top: -180px;
+  padding-top: 180px;
+}
+</style>
 </head>
 <body>
-    <script>
+<div id="bottom">
+  <textarea id="output"></textarea>
+</div>
+<div id="bottom">
+    <textarea id="output2"></textarea>
+</div>
 
-        $.ajax({
-            url: 'hhttps://abnormally-patient-bluejay.ngrok-free.app/stores/getAllJsonData/1',
-            type: 'GET',
-            headers: {
-                "ngrok-skip-browser-warning":"any"
-            },
-            success: function (data) {
-                console.log(data);
-            }
-        });
-    </script>
+<script>
+  var data;
+  var cors_api_url = 'https://cors-anywhere.herokuapp.com/';
+  function doCORSRequest(options, printResult) {
+    var x = new XMLHttpRequest();
+    x.open(options.method, cors_api_url + options.url);
+    x.onload = x.onerror = function() {
+      data = x.responseText
+      printResult(
+        options.method + ' ' + options.url + '\n' +
+        x.status + ' ' + x.statusText + '\n\n' +
+        (x.responseText || '')
+      );
+    };
+    if (/^POST/i.test(options.method)) {
+      x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    }
+    x.send(options.data);
+  }
 
-    <div class="container mx-auto" id="container">
-        <!-- ... -->
-    </div>
+  // Bind event
+  (function() {
+    var urlField = document.getElementById('url');
+    var outputField = document.getElementById('output');
+    var outputField2 = document.getElementById('output2');
+    
+    var urlParams = new URLSearchParams(window.location.search);
+    var id = urlParams.get("id");
+    var url = `https://abnormally-patient-bluejay.ngrok-free.app/stores/getAllJsonData/1`;
+    var options = {
+        method: 'GET',
+        url: url,
+        data: ''
+    };
+    doCORSRequest(options, function printResult(result) {
+        outputField.value = result;
+        var jsonData = JSON.parse(data);
+    
+        // Ensure the 'json_Data' field is present and is a string.
+        if (jsonData.store && jsonData.store.json_Data && typeof jsonData.store.json_Data === 'string') {
+          // Parse the 'json_Data' field to get a JSON object.
+          var json_Data = JSON.parse(jsonData.store.json_Data);
+          
+          // Now 'json_Data' is an object, you can directly access its properties.
+          console.log("json_Data:", JSON.stringify(json_Data));
+          
+          // Example: Accessing 'objData'
+          if(json_Data.data && json_Data.data.length > 0) {
+              var objData = json_Data.data[0].objData; // Assuming you want the first 'data' item's 'objData'.
+              console.log("objData:", objData);
+              // Set the value to the second textarea for visualization.
+              outputField2.value = JSON.stringify(objData, null, 2); // Pretty print the 'objData'.
+          }
+        } else {
+            console.error('json_Data is missing or not a string.');
+        }
+      });
+  })();
+  if (typeof console === 'object') {
+    console.log('// To test a local CORS Anywhere server, set cors_api_url. For example:');
+    console.log('cors_api_url = "http://localhost:8080/"');
+  }
+</script>
 </body>
 </html>
-
